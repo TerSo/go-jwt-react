@@ -1,0 +1,1 @@
+export const Info = () => <h1>Info page</h1>;

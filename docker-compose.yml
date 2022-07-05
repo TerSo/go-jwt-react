@@ -1,0 +1,63 @@
+version: "3.7"
+services:
+  server:
+    build:
+      context: ./server
+    container_name: server
+    ports:
+      - 4201:4201
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - api-net
+
+  client:
+    build:
+      context: ./client
+      target: dev
+    container_name: client
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client:/client/app
+      - /client/app/node_modules
+    networks:
+      - web-net
+
+  mysql:
+    restart: always
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    mem_limit: 512m
+    networks:
+      - api-net
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: application_dev  
+  redis:
+    restart: always
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - '6380:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - api-net
+
+volumes:
+  mysql_data:
+    external: true
+  redis_data:
+    external: true
+
+networks:
+  api-net:
+    external: true
+  web-net:
+    external: true
